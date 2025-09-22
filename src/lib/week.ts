@@ -1,34 +1,19 @@
-// Mon→Sun week boundaries in Africa/Nairobi (UTC+3), no deps
-const EAT_OFFSET_HOURS = 3;
+// src/lib/week.ts
 
-function toEAT(d: Date) {
-  return new Date(d.getTime() + EAT_OFFSET_HOURS * 3600 * 1000);
-}
-function fromEAT(dEat: Date) {
-  return new Date(dEat.getTime() - EAT_OFFSET_HOURS * 3600 * 1000);
-}
+export type WeekRange = { start: Date; end: Date };
 
-export function weekBoundsEAT(forDate?: Date) {
-  const eat = toEAT(forDate ?? new Date());
-  const dow = eat.getDay(); // 0=Sun..6=Sat
-  const diffToMon = (dow + 6) % 7; // Monday=0
-  const mondayEat = new Date(eat);
-  mondayEat.setHours(0, 0, 0, 0);
-  mondayEat.setDate(mondayEat.getDate() - diffToMon);
+/** Returns the current week (Mon 00:00:00 -> Sun 23:59:59) */
+export function currentWeek(): WeekRange {
+  const now = new Date();
+  const day = now.getDay(); // 0 Sun..6 Sat
+  const diffToMonday = (day + 6) % 7; // Mon=0
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - diffToMonday);
 
-  const sundayEat = new Date(mondayEat);
-  sundayEat.setDate(sundayEat.getDate() + 6);
-  sundayEat.setHours(23, 59, 59, 999);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
 
-  return {
-    weekStartUtc: fromEAT(mondayEat),
-    weekEndUtc: fromEAT(sundayEat),
-    weekStartEat: mondayEat,
-    weekEndEat: sundayEat,
-  };
-}
-
-export function isInCurrentWeekEAT(date: Date) {
-  const { weekStartUtc, weekEndUtc } = weekBoundsEAT();
-  return date >= weekStartUtc && date <= weekEndUtc;
+  return { start, end };
 }

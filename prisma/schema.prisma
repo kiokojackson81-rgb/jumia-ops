@@ -1,84 +1,50 @@
-datasource db {
-  provider = "postgresql" // or mysql/sqlite/etc as you use
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-model Shop {
-  id          Int        @id @default(autoincrement())
-  name        String
-  apiKey      String?
-  attendants  Attendant[]
-  orders      Order[]
-}
-
-model Attendant {
-  id        Int           @id @default(autoincrement())
-  code      String        @unique
-  name      String
-  shops     Shop[]        @relation("AttendantShops", references: [id])
-  orders    Order[]
-  priceLogs PriceChange[]
-  pickups   Pickup[]
+datasource db {
+  provider = "sqlite" // change to "postgresql" or "mysql" if you use those
+  url      = env("DATABASE_URL")
 }
 
 model Product {
-  id              Int      @id @default(autoincrement())
-  slug            String   @unique
+  id              Int    @id @default(autoincrement())
   name            String
-  lastBuyingPrice Float?
-  orders          Order[]
+  price           Int
+  slug            String @unique
+  lastBuyingPrice Int?
+}
+
+model Shop {
+  id             Int             @id @default(autoincrement())
+  name           String
+  attendantShops AttendantShop[] // <-- back relation
+}
+
+model Attendant {
+  id             Int             @id @default(autoincrement())
+  name           String
+  attendantShops AttendantShop[] // <-- back relation
+}
+
+model AttendantShop {
+  id          Int       @id @default(autoincrement())
+  attendant   Attendant @relation(fields: [attendantId], references: [id])
+  attendantId Int
+  shop        Shop      @relation(fields: [shopId], references: [id])
+  shopId      Int
+
+  @@unique([attendantId, shopId]) // optional but useful: one row per pair
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
 }
 
 model Order {
-  id                  Int        @id @default(autoincrement())
-  externalOrderId     String
-  productSlug         String
-  productName         String
-  quantity            Int
-  sellingPricePerUnit Float?
-  buyingPricePerUnit  Float?
-  shopId              Int
-  shop                Shop       @relation(fields: [shopId], references: [id])
-  attendantId         Int?
-  attendant           Attendant? @relation(fields: [attendantId], references: [id])
-  product             Product    @relation(fields: [productSlug], references: [slug])
-  status              String     // "PLACED" | "CONFIRMED" | "PACKING" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "RETURNED" | "CANCELLED"
-
-  // returns / pickup control
-  pickStatus          String     @default("WAITING") // "WAITING" | "PICKED_UP" | "RESTOCKED"
-  returnLocation      String?
-
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-}
-
-model PriceChange {
-  id           Int       @id @default(autoincrement())
-  orderId      Int
-  productSlug  String
-  oldPrice     Float?
-  newPrice     Float
-  attendantId  Int
-  reason       String?
-  createdAt    DateTime  @default(now())
-
-  order        Order     @relation(fields: [orderId], references: [id])
-  attendant    Attendant @relation(fields: [attendantId], references: [id])
-}
-
-model Pickup {
-  id          Int       @id @default(autoincrement())
-  orderId     Int
-  attendantId Int
-  qtyPicked   Int
-  notes       String?
-  photoUrl    String?
-  createdAt   DateTime  @default(now())
-
-  order       Order     @relation(fields: [orderId], references: [id])
-  attendant   Attendant @relation(fields: [attendantId], references: [id])
+  id     Int         @id @default(autoincrement())
+  status OrderStatus
 }

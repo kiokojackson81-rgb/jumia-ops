@@ -1,8 +1,24 @@
 {
   "scripts": {
+    "dev": "next dev -p 3013 -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -p 3013",
     "prisma:generate": "pnpm exec prisma generate",
     "db:push": "pnpm exec prisma db push",
-    "db:seed": "pnpm exec tsx --tsconfig tsconfig.scripts.json scripts/seed.ts",
-    "dev": "next dev -p 3013 -H 127.0.0.1"
+    "db:seed": "pnpm exec tsx --tsconfig tsconfig.scripts.json scripts/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "next": "^15.5.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "prisma": "^6.16.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }

@@ -1,10 +1,10 @@
-import "server-only";
 import { NextResponse } from "next/server";
 
-const ADMIN_COOKIE = "admin_session";
-
+// Clear auth cookies / tokens (adapt names to your auth)
 export async function POST() {
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(ADMIN_COOKIE, "", { path: "/", maxAge: 0 });
+  // Example cookie clear:
+  res.cookies.set("admin_token", "", { path: "/", httpOnly: true, maxAge: 0 });
+  res.cookies.set("attendant_token", "", { path: "/", httpOnly: true, maxAge: 0 });
   return res;
 }
