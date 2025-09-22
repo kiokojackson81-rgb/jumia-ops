@@ -1,50 +1,11 @@
-generator client {
-  provider = "prisma-client-js"
-}
+import { PrismaClient } from '@prisma/client';
 
-datasource db {
-  provider = "sqlite" // change to "postgresql" or "mysql" if you use those
-  url      = env("DATABASE_URL")
-}
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-model Product {
-  id              Int    @id @default(autoincrement())
-  name            String
-  price           Int
-  slug            String @unique
-  lastBuyingPrice Int?
-}
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ['error', 'warn'], // change to ['query','info','warn','error'] if you want verbose logs
+  });
 
-model Shop {
-  id             Int             @id @default(autoincrement())
-  name           String
-  attendantShops AttendantShop[] // <-- back relation
-}
-
-model Attendant {
-  id             Int             @id @default(autoincrement())
-  name           String
-  attendantShops AttendantShop[] // <-- back relation
-}
-
-model AttendantShop {
-  id          Int       @id @default(autoincrement())
-  attendant   Attendant @relation(fields: [attendantId], references: [id])
-  attendantId Int
-  shop        Shop      @relation(fields: [shopId], references: [id])
-  shopId      Int
-
-  @@unique([attendantId, shopId]) // optional but useful: one row per pair
-}
-
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  CANCELLED
-}
-
-model Order {
-  id     Int         @id @default(autoincrement())
-  status OrderStatus
-}
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

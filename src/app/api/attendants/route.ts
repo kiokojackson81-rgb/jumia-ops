@@ -1,18 +1,28 @@
-import "server-only";
-import { NextRequest, NextResponse } from "next/server";
+// src/app/api/attendants/route.ts
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const rows = await prisma.attendant.findMany({
-    include: { shops: { include: { shop: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-  return NextResponse.json(rows);
+  try {
+    const attendants = await prisma.attendant.findMany({
+      orderBy: { id: "asc" },
+      select: { id: true, name: true },
+    });
+    return NextResponse.json(attendants);
+  } catch {
+    return NextResponse.json({ error: "Failed to load attendants" }, { status: 500 });
+  }
 }
 
-export async function POST(req: NextRequest) {
-  const b = await req.json().catch(() => null);
-  if (!b?.name || !b?.code) return NextResponse.json({ error: "name, code required" }, { status: 400 });
-  const att = await prisma.attendant.create({ data: { name: b.name, code: b.code } });
-  return NextResponse.json(att, { status: 201 });
+export async function POST(req: Request) {
+  try {
+    const { name } = await req.json().catch(() => ({} as any));
+    if (!name || typeof name !== "string") {
+      return NextResponse.json({ error: "Name required" }, { status: 400 });
+    }
+    const created = await prisma.attendant.create({ data: { name } });
+    return NextResponse.json(created, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Failed to create attendant" }, { status: 500 });
+  }
 }
