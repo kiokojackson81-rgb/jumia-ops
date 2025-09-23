@@ -1,10 +1,11 @@
 // prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "sqlite"           // change to "postgresql" or "mysql" if you use those
   url      = env("DATABASE_URL")
 }
 
@@ -19,13 +20,13 @@ model Product {
 model Shop {
   id             Int             @id @default(autoincrement())
   name           String
-  attendantShops AttendantShop[]
+  attendantShops AttendantShop[] // back relation
 }
 
 model Attendant {
   id             Int             @id @default(autoincrement())
   name           String
-  attendantShops AttendantShop[]
+  attendantShops AttendantShop[] // back relation
 }
 
 model AttendantShop {
@@ -35,7 +36,7 @@ model AttendantShop {
   shop        Shop      @relation(fields: [shopId], references: [id])
   shopId      Int
 
-  @@unique([attendantId, shopId])
+  @@unique([attendantId, shopId]) // one row per pair
 }
 
 enum OrderStatus {
