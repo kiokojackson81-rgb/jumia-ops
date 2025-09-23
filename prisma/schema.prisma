@@ -14,3 +14,12 @@ model Product {
   slug            String @unique
   lastBuyingPrice Int?
 }
+
+model Attendant {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+model Attendant {
+  id   Int    @id @default(autoincrement())
+  name String
+}
