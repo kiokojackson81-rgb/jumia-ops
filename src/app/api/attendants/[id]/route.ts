@@ -1,32 +1,60 @@
 // src/app/api/attendants/[id]/route.ts
-import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
-  const b = await req.json().catch(() => null);
+// If attendant IDs are numeric in your DB, set this to true
+const NUMERIC_IDS = false;
 
-  const att = await prisma.attendant.update({
-    where: { id },
-    data: { 
-      name: b?.name, 
-      code: b?.code, 
-      active: b?.active 
-    },
-  });
-
-  return NextResponse.json(att);
+function parseId(raw: string) {
+  if (!raw) throw new Error("Invalid id");
+  if (NUMERIC_IDS) {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) throw new Error("Invalid id");
+    return n;
+  }
+  return raw; // string ids (uuid/cuid)
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
-
+// GET /api/attendants/[id]
+export async function GET(_req: NextRequest, ctx: any) {
   try {
-    await prisma.attendant.delete({ where: { id } });
-    return NextResponse.json({ ok: true, id }, { status: 200 });
+    const id = parseId(ctx?.params?.id);
+    const attendant = await prisma.attendant.findUnique({ where: { id } });
+    if (!attendant) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(attendant);
   } catch (err) {
-    console.error("DELETE /api/attendants/[id] failed:", err);
-    return NextResponse.json({ ok: false, error: "Failed to delete" }, { status: 500 });
+    console.error("GET attendant failed:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+// PATCH /api/attendants/[id]
+export async function PATCH(req: NextRequest, ctx: any) {
+  try {
+    const id = parseId(ctx?.params?.id);
+    const data = await req.json(); // validate to taste
+    const updated = await prisma.attendant.update({ where: { id }, data });
+    return NextResponse.json(updated);
+  } catch (err: any) {
+    if (err?.code === "P2025") {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    console.error("PATCH attendant failed:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+// DELETE /api/attendants/[id]
+export async function DELETE(_req: NextRequest, ctx: any) {
+  try {
+    const id = parseId(ctx?.params?.id);
+    await prisma.attendant.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (err: any) {
+    if (err?.code === "P2025") {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    console.error("DELETE attendant failed:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
