@@ -16,9 +16,9 @@ function parseId(raw: string) {
 }
 
 // GET /api/attendants/[id]
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, context: { params: { id: string } }) {
   try {
-    const id = parseId(params.id);
+    const id = parseId(context.params.id);
     const attendant = await prisma.attendants.findUnique({ where: { id } });
     if (!attendant) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(attendant);
@@ -29,9 +29,9 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 }
 
 // PATCH /api/attendants/[id]
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const id = parseId(params.id);
+    const id = parseId(context.params.id);
     const data = await req.json(); // validate to taste
     const updated = await prisma.attendants.update({ where: { id }, data });
     return NextResponse.json(updated);
@@ -45,9 +45,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // DELETE /api/attendants/[id]
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, context: { params: { id: string } }) {
   try {
-    const id = parseId(params.id);
+    const id = parseId(context.params.id);
     await prisma.attendants.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (err: any) {
