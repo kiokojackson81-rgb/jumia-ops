@@ -1,21 +1,28 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { OrderStatus } from '@prisma/client';
+// src/app/api/reports/summary/route.ts
+import { prisma } from "@/lib/prisma";
+import { json } from "@/lib/api";
 
 export async function GET() {
-  const orders = await prisma.order.findMany({
-    select: { id: true, status: true },
-    orderBy: { id: 'desc' },
-    take: 500,
-  });
+  try {
+    const [products, shops, attendants, orders] = await Promise.all([
+      prisma.product.count(),
+      prisma.shop.count(),
+      prisma.attendant.count(),
+      prisma.order.count(),
+    ]);
 
-  const byStatus = orders.reduce((acc, o) => {
-    acc[o.status] = (acc[o.status] ?? 0) + 1;
-    return acc;
-  }, {} as Record<OrderStatus, number>);
-
-  return NextResponse.json({
-    total: orders.length,
-    byStatus,
-  });
+    return json({
+      products,
+      shops,
+      attendants,
+      orders,
+      revenueThisWeek: 0,
+      buyingThisWeek: 0,
+      profitThisWeek: 0,
+      returnsWaitingPickup: 0,
+    });
+  } catch (err) {
+    console.error("GET /api/reports/summary failed:", err);
+    return json({ error: "Internal error" }, 500);
+  }
 }

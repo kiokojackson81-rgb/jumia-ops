@@ -1,14 +1,12 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { json } from "@/lib/http";
+
+export const runtime = "nodejs";
 
 export async function GET() {
-  const rows = await prisma.shop.findMany({ orderBy: { id: "asc" } });
-  return NextResponse.json({ rows });
-}
-
-export async function POST(req: Request) {
-  const { name } = await req.json();
-  if (!name?.trim()) return NextResponse.json({ ok: false }, { status: 400 });
-  const created = await prisma.shop.create({ data: { name: String(name).trim() } });
-  return NextResponse.json({ ok: true, id: created.id });
+  const shops = await prisma.shop.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+  return json({ shops });
 }

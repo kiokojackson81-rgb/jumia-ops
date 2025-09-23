@@ -1,4 +1,9 @@
-import { NextResponse } from "next/server";
+import { json } from "@/lib/http";
+
+export const runtime = "nodejs";
+
 export async function GET() {
-  return NextResponse.json({ count: 0 }); // replace with real DB count later
+  // Hook your real count here.
+  const count = 0;
+  return json({ count });
 }

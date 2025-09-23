@@ -1,23 +1,27 @@
-export default function Home() {
+// src/app/page.tsx
+export default function HomePage() {
   return (
-    <main className="h-screen flex flex-col items-center justify-center bg-gray-100 text-center">
-      <h1 className="text-2xl font-bold">Welcome to Jumia Ops</h1>
-      <p className="text-gray-600 mt-2">
-        Choose where you want to go:
-      </p>
-      <div className="flex gap-4 mt-6">
-        <a
-          href="/admin"
-          className="px-4 py-2 bg-black text-white rounded-xl hover:opacity-80"
-        >
-          Admin Panel
-        </a>
-        <a
-          href="/attendant"
-          className="px-4 py-2 bg-gray-800 text-white rounded-xl hover:opacity-80"
-        >
-          Attendant Panel
-        </a>
+    <main className="min-h-screen bg-[#0b0e13] text-slate-100 p-6">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="text-2xl font-semibold">Jumia Ops</h1>
+        <p className="mt-2 text-slate-300">
+          Welcome. Use the navigation to access Admin and Attendant areas.
+        </p>
+
+        <div className="mt-6 flex gap-3">
+          <a
+            href="/admin"
+            className="rounded-md bg-white/10 px-4 py-2 text-sm hover:bg-white/20"
+          >
+            Go to Admin
+          </a>
+          <a
+            href="/attendant"
+            className="rounded-md bg-white/10 px-4 py-2 text-sm hover:bg-white/20"
+          >
+            Go to Attendant
+          </a>
+        </div>
       </div>
     </main>
   );

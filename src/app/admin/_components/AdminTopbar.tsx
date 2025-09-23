@@ -23,36 +23,47 @@ export default function AdminTopbar() {
   const [pendingCnt, setPendingCnt] = useState<Badge>(null);
   const [waitingPickup, setWaitingPickup] = useState<Badge>(null);
 
+  // Load small counters; failure is fine (keeps UI responsive).
   useEffect(() => {
     let ignore = false;
-
     (async () => {
       try {
         const pending = await getJson<{ count: number }>("/api/attendants/pending");
-        if (!ignore) setPendingCnt(typeof pending?.count === "number" ? pending.count : 0);
-      } catch { if (!ignore) setPendingCnt(null); }
+        if (!ignore) setPendingCnt(pending?.count ?? 0);
+      } catch {
+        if (!ignore) setPendingCnt(null);
+      }
 
       try {
         const waiting = await getJson<{ count: number }>("/api/returns/waiting-pickup");
-        if (!ignore) setWaitingPickup(typeof waiting?.count === "number" ? waiting.count : 0);
-      } catch { if (!ignore) setWaitingPickup(null); }
+        if (!ignore) setWaitingPickup(waiting?.count ?? 0);
+      } catch {
+        if (!ignore) setWaitingPickup(null);
+      }
     })();
-
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [api]);
 
   const onApiChange = (v: string) => {
     const cleaned = v.trim().replace(/\/$/, "");
-    if (cleaned) localStorage.setItem("adminApiBase", cleaned);
-    else localStorage.removeItem("adminApiBase");
+    if (cleaned) {
+      localStorage.setItem("adminApiBase", cleaned);
+    } else {
+      localStorage.removeItem("adminApiBase");
+    }
     setApi(cleaned);
   };
 
-  const active = (rx: RegExp) => (rx.test(pathname ?? "") ? "text-white" : "text-slate-300");
+  const active = (rx: RegExp) => (rx.test(pathname) ? "text-white" : "text-slate-300");
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#0b0e13]/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+        <Link href="/" className="rounded-md px-2 py-1 text-sm text-slate-300 hover:text-white">
+          Home
+        </Link>
         <Link href="/admin" className="font-semibold tracking-wide text-white">
           Jumia Ops <span className="text-slate-400">· Admin</span>
         </Link>
@@ -79,26 +90,18 @@ export default function AdminTopbar() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
-          <div className="hidden lg:flex items-center gap-2">
-            <label className="text-xs text-slate-400">API:</label>
-            <input
-              value={api}
-              onChange={(e) => onApiChange(e.target.value)}
-              placeholder="(empty = same origin)"
-              className="w-[320px] rounded-md border border-white/10 bg-black/30 px-2 py-1 text-xs text-slate-100 outline-none focus:ring-1 focus:ring-white/20"
-            />
-          </div>
-
-          <Link
-            href="/admin/login"
-            className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-100 hover:bg-white/10"
-          >
-            Login
-          </Link>
+        <div className="ml-auto hidden lg:flex items-center gap-2">
+          <label className="text-xs text-slate-400">API:</label>
+          <input
+            value={api}
+            onChange={(e) => onApiChange(e.target.value)}
+            placeholder="(empty = same origin)"
+            className="w-[320px] rounded-md border border-white/10 bg-black/30 px-2 py-1 text-xs text-slate-100 outline-none focus:ring-1 focus:ring-white/20"
+          />
         </div>
       </div>
 
+      {/* Mobile nav */}
       <div className="md:hidden border-t border-white/10">
         <nav className="flex snap-x overflow-x-auto px-2 py-2">
           {tabs.map((t) => (

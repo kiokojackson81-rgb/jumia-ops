@@ -1,11 +1,51 @@
-import { PrismaClient } from '@prisma/client';
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ['error', 'warn'], // change to ['query','info','warn','error'] if you want verbose logs
-  });
+model Product {
+  id              Int    @id @default(autoincrement())
+  name            String
+  price           Int
+  slug            String @unique
+  lastBuyingPrice Int?
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+model Shop {
+  id             Int             @id @default(autoincrement())
+  name           String
+  attendantShops AttendantShop[]
+}
+
+model Attendant {
+  id             Int             @id @default(autoincrement())
+  name           String
+  attendantShops AttendantShop[]
+}
+
+model AttendantShop {
+  id          Int       @id @default(autoincrement())
+  attendant   Attendant @relation(fields: [attendantId], references: [id])
+  attendantId Int
+  shop        Shop      @relation(fields: [shopId], references: [id])
+  shopId      Int
+
+  @@unique([attendantId, shopId])
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id     Int         @id @default(autoincrement())
+  status OrderStatus
+}
