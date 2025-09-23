@@ -1,14 +1,10 @@
-// src/app/api/admin/logout/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
+// Clear auth cookies / tokens (adapt names to your auth)
 export async function POST() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const res = NextResponse.redirect(new URL('/login', base));
-  // Clear your auth cookie/session here — example cookie name 'auth'
-  res.cookies.set('auth', '', { path: '/', httpOnly: true, maxAge: 0 });
+  const res = NextResponse.json({ ok: true });
+  // Example cookie clear:
+  res.cookies.set("admin_token", "", { path: "/", httpOnly: true, maxAge: 0 });
+  res.cookies.set("attendant_token", "", { path: "/", httpOnly: true, maxAge: 0 });
   return res;
-}
-
-export async function GET() {
-  return NextResponse.json({ ok: true });
 }
