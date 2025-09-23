@@ -1,7 +1,9 @@
-/* src/app/globals.css */
 @import "tailwindcss";
 
-/* your custom globals can follow */
-html, body {
-  height: 100%;
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
+
+/* your global styles here */
+:root { color-scheme: dark; }
+html, body { height: 100%; }
