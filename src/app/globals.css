@@ -1,31 +1,7 @@
+/* src/app/globals.css */
 @import "tailwindcss";
 
-/* ---------- Design Tokens ---------- */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* your custom globals can follow */
+html, body {
+  height: 100%;
 }
-
-/* Dark mode overrides */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* ---------- Tailwind Theme Extensions ---------- */
-:root {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* ---------- Base Styles ---------- */
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-@import "tailwindcss";
