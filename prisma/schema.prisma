@@ -1,52 +1,57 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"           // change to "postgresql" or "mysql" if you use those
+  provider = "sqlite" // keep SQLite for now; Postgres later
   url      = env("DATABASE_URL")
 }
 
 model Product {
-  id              Int    @id @default(autoincrement())
-  name            String
-  price           Int
-  slug            String @unique
-  lastBuyingPrice Int?
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  orders    Order[]
 }
 
 model Shop {
-  id             Int             @id @default(autoincrement())
-  name           String
-  attendantShops AttendantShop[] // back relation
+  id         Int         @id @default(autoincrement())
+  name       String
+  createdAt  DateTime    @default(now())
+  attendants Attendant[]
+  orders     Order[]
 }
 
 model Attendant {
-  id             Int             @id @default(autoincrement())
-  name           String
-  attendantShops AttendantShop[] // back relation
-}
-
-model AttendantShop {
-  id          Int       @id @default(autoincrement())
-  attendant   Attendant @relation(fields: [attendantId], references: [id])
-  attendantId Int
-  shop        Shop      @relation(fields: [shopId], references: [id])
-  shopId      Int
-
-  @@unique([attendantId, shopId]) // one row per pair
+  id        Int      @id @default(autoincrement())
+  name      String
+  shop      Shop?    @relation(fields: [shopId], references: [id])
+  shopId    Int?
+  createdAt DateTime @default(now())
+  orders    Order[]
 }
 
 enum OrderStatus {
   PENDING
-  PROCESSING
-  COMPLETED
+  PRICED
+  FULFILLED
   CANCELLED
+  RETURN_REQUESTED
+  RETURN_WAITING_PICKUP
+  RETURNED
 }
 
 model Order {
-  id     Int         @id @default(autoincrement())
-  status OrderStatus
+  id          Int         @id @default(autoincrement())
+  status      OrderStatus @default(PENDING)
+  product     Product     @relation(fields: [productId], references: [id])
+  productId   Int
+  shop        Shop        @relation(fields: [shopId], references: [id])
+  shopId      Int
+  attendant   Attendant?  @relation(fields: [attendantId], references: [id])
+  attendantId Int?
+  qty         Int         @default(1)
+  buyPrice    Int? // in cents; adjust types as you prefer
+  sellPrice   Int?
+  createdAt   DateTime    @default(now())
 }
