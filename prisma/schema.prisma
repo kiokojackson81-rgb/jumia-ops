@@ -1,31 +1,16 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  // For local dev you can keep SQLite. In prod you'll switch to Postgres/MySQL.
   provider = "sqlite"
   url      = "file:./dev.db"
 }
 
-/* -------------------------
-   YOUR MODELS GO BELOW
-   (Keep your actual models)
-   ------------------------- */
-
-// Example placeholders – delete if you already have models.
-model Shop {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Attendant {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Product {
+  id              Int    @id @default(autoincrement())
+  name            String
+  price           Int
+  slug            String @unique
+  lastBuyingPrice Int?
 }
