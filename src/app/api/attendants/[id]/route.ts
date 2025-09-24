@@ -19,7 +19,7 @@ function parseId(raw: string) {
 export async function GET(_req: NextRequest, context: { params: { id: string } }) {
   try {
     const id = parseId(context.params.id);
-    const attendant = await prisma.attendants.findUnique({ where: { id } });
+  const attendant = await prisma.attendant.findUnique({ where: { id: id as number } });
     if (!attendant) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(attendant);
   } catch (err) {
@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
   try {
     const id = parseId(context.params.id);
     const data = await req.json(); // validate to taste
-    const updated = await prisma.attendants.update({ where: { id }, data });
+  const updated = await prisma.attendant.update({ where: { id: id as number }, data });
     return NextResponse.json(updated);
   } catch (err: any) {
     if (err?.code === "P2025") {
@@ -45,10 +45,13 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
 }
 
 // DELETE /api/attendants/[id]
-export async function DELETE(_req: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = parseId(context.params.id);
-    await prisma.attendants.delete({ where: { id } });
+    const id = parseId(params.id);
+    if (NUMERIC_IDS && typeof id !== "number") {
+      throw new Error("Attendant ID must be a number");
+    }
+    await prisma.attendant.delete({ where: { id: id as number } });
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     if (err?.code === "P2025") {
