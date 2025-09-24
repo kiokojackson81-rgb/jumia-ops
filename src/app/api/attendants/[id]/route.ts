@@ -45,9 +45,9 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
 }
 
 // DELETE /api/attendants/[id]
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = parseId(context.params.id);
+    const id = parseId(params.id);
     if (NUMERIC_IDS && typeof id !== "number") {
       throw new Error("Attendant ID must be a number");
     }
