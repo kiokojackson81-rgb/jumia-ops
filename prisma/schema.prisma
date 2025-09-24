@@ -19,7 +19,3 @@ model Attendant {
   id   Int    @id @default(autoincrement())
   name String
 }
-model Attendant {
-  id   Int    @id @default(autoincrement())
-  name String
-}
