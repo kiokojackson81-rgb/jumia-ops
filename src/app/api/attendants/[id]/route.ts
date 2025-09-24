@@ -19,7 +19,7 @@ function parseId(raw: string) {
 export async function GET(_req: NextRequest, context: { params: { id: string } }) {
   try {
     const id = parseId(context.params.id);
-  const attendant = await prisma.attendant.findUnique({ where: { id: id as number } });
+    const attendant = await prisma.attendant.findUnique({ where: { id: id as number } });
     if (!attendant) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(attendant);
   } catch (err) {
@@ -29,11 +29,11 @@ export async function GET(_req: NextRequest, context: { params: { id: string } }
 }
 
 // PATCH /api/attendants/[id]
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
   try {
     const id = parseId(context.params.id);
-    const data = await req.json(); // validate to taste
-  const updated = await prisma.attendant.update({ where: { id: id as number }, data });
+    const data = await request.json(); // validate to taste
+    const updated = await prisma.attendant.update({ where: { id: id as number }, data });
     return NextResponse.json(updated);
   } catch (err: any) {
     if (err?.code === "P2025") {
